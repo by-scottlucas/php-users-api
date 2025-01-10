@@ -98,4 +98,90 @@ class UserController
                 ->withStatus(500);
         }
     }
+
+    public function update($request, $response, $args)
+    {
+        try {
+
+            $id = $args['id'];
+            $user = $this->userModel->getUser($id);
+
+            if ($user) {
+
+                $data = $request->getParsedBody();
+
+                if (!$data) {
+                    $data = json_decode($request->getBody()->getContents(), true);
+                }
+
+
+                if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
+                    $error = ['error' => 'Todos os campos (name, email, password) são obrigatórios.'];
+                    $response->getBody()->write(json_encode($error));
+                    return $response
+                        ->withHeader('Content-Type', 'application/json')
+                        ->withStatus(400);
+                }
+
+                $result = $this->userModel->updateUser($id, $data);
+
+                $success = $data;
+                $response->getBody()->write(json_encode($success));
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(201);
+            } else {
+                $response
+                    ->getBody()
+                    ->write(json_encode(["error" => "Usuário não encontrado."]));
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(404);
+            }
+        } catch (Exception $e) {
+            $error = ['error' => 'Erro ao atualizar o usuário.', 'details' => $e->getMessage()];
+            $response->getBody()->write(json_encode($error));
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+    }
+
+    public function delete($request, $response, $args)
+    {
+        try {
+            $id = $args['id'];
+            $user = $this->userModel->getUser($id);
+
+            if ($user) {
+                $result = $this->userModel->deleteUser($id);
+                $success = 'Usuário excluído com sucesso!';
+                $response->getBody()->write(json_encode($success));
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(204);
+
+                $response
+                    ->getBody()
+                    ->write(json_encode(["error" => "Usuário não encontrado."]));
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(404);
+            } else {
+                $response
+                    ->getBody()
+                    ->write(json_encode(["error" => "Usuário não encontrado."]));
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(404);
+            }
+        } catch (Exception $e) {
+            $response
+                ->getBody()
+                ->write(json_encode(["error" => $e->getMessage()]));
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+    }
 }

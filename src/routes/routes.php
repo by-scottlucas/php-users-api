@@ -12,4 +12,6 @@ return function ($app, $userController) {
     $app->get('/api/users', [$userController, 'list']);
     $app->post('/api/users', [$userController, 'create']);
     $app->get('/api/users/{id}', [$userController, 'read']);
+    $app->put('/api/users/{id}', [$userController, 'update']);
+    $app->delete('/api/users/{id}', [$userController, 'delete']);
 };
